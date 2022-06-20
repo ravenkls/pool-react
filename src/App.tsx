@@ -1,25 +1,36 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useContext, useRef } from "react";
+import styled from "styled-components";
+import PoolTable from "./components/PoolTable";
+import { GameContext, GameProvider } from "./context/GameContext";
+
+const GameArea = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
+`;
 
 function App() {
+  const { state, triggerEvent } = useContext(GameContext);
+  const poolTableRef = useRef<SVGSVGElement>(null);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <GameArea
+      onMouseUp={(e: React.MouseEvent<HTMLElement>) => {
+        if (state.aiming && poolTableRef.current) {
+          const bounds = poolTableRef.current.getBoundingClientRect();
+          const x = e.clientX - bounds.left;
+          const y = e.clientY - bounds.top;
+          triggerEvent({
+            type: "shoot",
+            mousePos: { x, y },
+          });
+        }
+      }}
+    >
+      <PoolTable ref={poolTableRef} />
+    </GameArea>
   );
 }
 
